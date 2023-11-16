@@ -2,31 +2,43 @@ version: "3"
 
 services:
   plex:
+    image: lscr.io/linuxserver/plex:latest
+    restart: unless-stopped
+    ports:
+      - ${HOST_IP_BIND}:${PLEX_PORT:?}:${PLEX_PORT:?}
+    environment:
+      - TZ=${TZ:?}
+      - PUID=${PUID:?}
+      - PGID=${PGID:?}
+    volumes:
+      - ${TV_DIR:?}:/tv
+      - ${MOVIES_DIR:?}:/movies
+      - ${CONFIG_DIR:?}:/config
 
-  overseerr:
-
-  sonarr:
-
-  radarr:
-
-  gluetun:
-
-  qbittorrent:
-
-  plexautolanguages:
-
-  plex-meta-manager:
-
-  jackett:
-
-  prowlarr:
-
-  tautulli:
-
-  watchtower:
-
-  portainer:
-
-volumes:
-  portainer_data:
-  
+#  overseerr:
+#
+#  sonarr:
+#
+#  radarr:
+#
+#  gluetun:
+#
+#  qbittorrent:
+#
+#  plexautolanguages:
+#
+#  plex-meta-manager:
+#
+#  jackett:
+#
+#  prowlarr:
+#
+#  tautulli:
+#
+#  watchtower:
+#
+#  portainer:
+#
+#volumes:
+#  portainer_data:
+#  
