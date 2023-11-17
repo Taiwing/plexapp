@@ -13,17 +13,83 @@ services:
     volumes:
       - ${TV_DIR:?}:/tv
       - ${MOVIES_DIR:?}:/movies
-      - ${CONFIG_DIR:?}:/config
+      - ${CONFIG_DIR:?}/plex:/config
 
-#  overseerr:
-#
-#  sonarr:
-#
-#  radarr:
-#
-#  gluetun:
-#
-#  qbittorrent:
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    restart: unless-stopped
+    ports:
+      - ${HOST_IP_BIND}:${OVERSEERR_PORT:?}:${OVERSEERR_PORT:?}
+    environment:
+      - TZ=${TZ:?}
+      - PUID=${PUID:?}
+      - PGID=${PGID:?}
+    volumes:
+      - ${CONFIG_DIR:?}/overseerr:/config
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    ports:
+      - ${HOST_IP_BIND}:${SONARR_PORT:?}:${SONARR_PORT:?}
+    environment:
+      - TZ=${TZ:?}
+      - PUID=${PUID:?}
+      - PGID=${PGID:?}
+    volumes:
+      - ${CONFIG_DIR:?}/sonarr:/config
+      - ${TV_DIR:?}:/tv
+      - ${DOWNLOAD_DIR:?}:/download
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    ports:
+      - ${HOST_IP_BIND}:${RADARR_PORT:?}:${RADARR_PORT:?}
+    environment:
+      - TZ=${TZ:?}
+      - PUID=${PUID:?}
+      - PGID=${PGID:?}
+    volumes:
+      - ${CONFIG_DIR:?}/radarr:/config
+      - ${MOVIES_DIR:?}:/movies
+      - ${DOWNLOAD_DIR:?}:/download
+
+  gluetun:
+    image: qmcgaw/gluetun
+    restart: unless-stopped
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - TZ=${TZ:?}
+      - PUID=${PUID:?}
+      - PGID=${PGID:?}
+      - VPN_SERVICE_PROVIDER=${OPENVPN_PROVIDER:?}
+      - OPENVPN_USER=${OPENVPN_USER:?}
+      - OPENVPN_PASSWORD=${OPENVPN_PASS:?}
+      # Only for protonvpn
+      - SERVER_COUNTRIES=Netherlands
+      - FREE_ONLY=on
+    ports:
+      - ${QBITTORRENT_FRONT_PORT:?}:${QBITTORRENT_FRONT_PORT:?}
+      - 6881:6881
+      - 6881:6881/udp
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    environment:
+      - TZ=${TZ:?}
+      - PUID=${PUID:?}
+      - PGID=${PGID:?}
+      - WEBUI_PORT=${QBITTORRENT_FRONT_PORT:?}
+    volumes:
+      - ${CONFIG_DIR:?}/qbittorrent:/config
+      - ${MOVIES_DIR:?}:/movies
+      - ${DOWNLOAD_DIR:?}:/download
+      - ${WATCH_DIR:?}:/watch
 #
 #  plexautolanguages:
 #
