@@ -55,6 +55,18 @@ services:
       - ${MOVIES_DIR:?}:/movies
       - ${DOWNLOAD_DIR:?}:/download
 
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    restart: unless-stopped
+    ports:
+      - ${HOST_IP_BIND}:${PROWLARR_PORT:?}:${PROWLARR_PORT:?}
+    environment:
+      - TZ=${TZ:?}
+      - PUID=${PUID:?}
+      - PGID=${PGID:?}
+    volumes:
+      - ${CONFIG_DIR:?}/prowlarr:/config
+
   gluetun:
     image: qmcgaw/gluetun
     restart: unless-stopped
@@ -94,10 +106,6 @@ services:
 #  plexautolanguages:
 #
 #  plex-meta-manager:
-#
-#  jackett:
-#
-#  prowlarr:
 #
 #  tautulli:
 #
